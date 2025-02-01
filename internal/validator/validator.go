@@ -9,11 +9,12 @@ const EmailRegexString = "^[a-zA-Z0-9.!#$%&'*+\\/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-z
 var EmailRegex = regexp.MustCompile(EmailRegexString)
 
 type Validator struct {
-	FieldErrors map[string]string
+	NonFieldErrors []string
+	FieldErrors    map[string]string
 }
 
 func (v *Validator) Valid() bool {
-	return len(v.FieldErrors) == 0
+	return len(v.FieldErrors) == 0 && len(v.NonFieldErrors) == 0
 }
 
 func (v *Validator) AddFieldError(key, msg string) {
@@ -23,6 +24,10 @@ func (v *Validator) AddFieldError(key, msg string) {
 	if _, exists := v.FieldErrors[key]; !exists {
 		v.FieldErrors[key] = msg
 	}
+}
+
+func (v *Validator) AddNonFieldError(msg string) {
+	v.NonFieldErrors = append(v.NonFieldErrors, msg)
 }
 
 func (v *Validator) CheckField(ok bool, key, msg string) {
@@ -39,7 +44,7 @@ func MaxChars(value string, limit int) bool {
 	return utf8.RuneCountInString(value) <= limit
 }
 
-func PermittedInt(value int, pValues ...int) bool {
+func PermittedVal[T comparable](value T, pValues ...T) bool {
 	for i := range pValues {
 		if value == pValues[i] {
 			return true

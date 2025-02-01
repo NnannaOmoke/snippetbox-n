@@ -6,11 +6,13 @@ import "snippetbox-n/internal/models"
 import "time"
 
 type templateData struct {
-	CurrentYear  int
-	Snippet      models.Snippet
-	SnippetSlice []models.Snippet
-	Form         any //god no...
-	Flash        string
+	CurrentYear     int
+	Snippet         models.Snippet
+	SnippetSlice    []models.Snippet
+	Form            any //god no...
+	Flash           string
+	IsAuthenticated bool
+	CSRFToken       string
 }
 
 var functions = template.FuncMap{
@@ -18,7 +20,10 @@ var functions = template.FuncMap{
 }
 
 func humanDate(t time.Time) string {
-	return t.Format("02 Jan 2006 at 15:04")
+	if t.IsZero() {
+		return ""
+	}
+	return t.UTC().Format("02 Jan 2006 at 15:04")
 }
 
 func newTemplateCache() (map[string]*template.Template, error) {
